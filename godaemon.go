@@ -43,10 +43,7 @@ func killByName(name string) error {
 	case "linux":
 		cmd = exec.Command("pkill", name)
 	case "windows":
-		if !(len(name) > 4 && name[len(name)-5:len(name)-1] == ".exe") {
-			name = name + ".exe"
-		}
-		cmd = exec.Command("taskkill", `/f`, `/im`, name)
+		cmd = exec.Command("taskkill", `/f`, `/im`, name, "/T") //T参数用来杀死其子进程
 	default:
 		return fmt.Errorf("-k arg just support windows and linux")
 	}
