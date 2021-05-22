@@ -43,6 +43,9 @@ func killByName(name string) error {
 	case "linux":
 		cmd = exec.Command("pkill", name)
 	case "windows":
+		if !(len(name) > 4 && name[len(name)-5:len(name)-1] == ".exe") {
+			name = name + ".exe"
+		}
 		cmd = exec.Command("taskkill", `/f`, `/im`, name)
 	default:
 		return fmt.Errorf("-k arg just support windows and linux")
