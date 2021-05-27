@@ -13,10 +13,10 @@ func init() {
 	goDaemon := flag.Bool("d", false, "run app as a daemon with -d=true.")
 	kill := flag.Bool("k", false, "kill app which run in background")
 	for _, arg := range os.Args[1:] {
-		if arg == "-d" {
+		if arg == "-d" || arg == "-d=true" {
 			*goDaemon = true
 		}
-		if arg == "-k" {
+		if arg == "-k" || arg == "-k=true" {
 			*kill = true
 		}
 	}
