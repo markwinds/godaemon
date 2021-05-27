@@ -1,4 +1,4 @@
-package godaemon
+package main
 
 import (
 	"flag"
@@ -12,7 +12,14 @@ import (
 func init() {
 	goDaemon := flag.Bool("d", false, "run app as a daemon with -d=true.")
 	kill := flag.Bool("k", false, "kill app which run in background")
-	flag.Parse()
+	for _, arg := range os.Args[1:] {
+		if arg == "-d" {
+			*goDaemon = true
+		}
+		if arg == "-k" {
+			*kill = true
+		}
+	}
 
 	if *goDaemon {
 		cmd := exec.Command(os.Args[0], flag.Args()...)
