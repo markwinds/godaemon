@@ -10,31 +10,44 @@ import (
 )
 
 func init() {
-	goDaemon := flag.Bool("d", false, "run app as a daemon with -d=true.")
+
+	// 命令行k参数 用于杀死进程
 	kill := flag.Bool("k", false, "kill app which run in background")
+
+	// 命令行w参数 用于到监测程序退出值为10时重启程序 默认开启 使用-w禁用
+	watcher := flag.Bool("w", true, "watch process and restart program when process exit 10")
+
 	for _, arg := range os.Args[1:] {
-		if arg == "-d" || arg == "-d=true" {
-			*goDaemon = true
-		}
 		if arg == "-k" || arg == "-k=true" {
 			*kill = true
 		}
-	}
-
-	if *goDaemon {
-		cmd := exec.Command(os.Args[0], flag.Args()...)
-		if err := cmd.Start(); err != nil {
-			fmt.Printf("start %s failed, error: %v\n", os.Args[0], err)
-			os.Exit(1)
+		if arg == "-w" || arg == "-w=true" {
+			*watcher = false
 		}
-		fmt.Printf("%s [PID] %d running...\n", os.Args[0], cmd.Process.Pid)
-		os.Exit(0)
 	}
 
 	if *kill {
 		err := killByName(os.Args[0])
 		if err != nil {
 			panic(err)
+		}
+		os.Exit(0)
+	}
+
+	if *watcher {
+		// 重新启动程序 新进程需要-w参数 从而直接运行程序而不是启动watcher
+		outProcess := false
+		for !outProcess {
+			newArgs := append(os.Args[1:], "-w")
+			cmd := exec.Command(os.Args[0], newArgs...)
+			if err := cmd.Run(); err != nil {
+				if exitError, ok := err.(*exec.ExitError); ok {
+					if exitError.ExitCode() == 10 {
+						continue // 当程序退出值为10时重启启动程序
+					}
+				}
+			}
+			outProcess = true
 		}
 		os.Exit(0)
 	}
