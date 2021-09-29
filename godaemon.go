@@ -40,6 +40,7 @@ func init() {
 		for !outProcess {
 			newArgs := append(os.Args[1:], "-w")
 			cmd := exec.Command(os.Args[0], newArgs...)
+			cmd.Stdout = os.Stdout // 重定向输出到父进程的标准输出
 			if err := cmd.Run(); err != nil {
 				if exitError, ok := err.(*exec.ExitError); ok {
 					if exitError.ExitCode() == 10 {
